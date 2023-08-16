@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.express as px
 import plotly.io as pio
+from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
@@ -57,10 +58,13 @@ plot_acf(differenced_series, ax=axes[0])
 plot_pacf(differenced_series, ax=axes[1])
 plt.show()
 
-# Fit an ARIMA model
-p, d, q = 1, 1, 1
-model = ARIMA(time_series, order=(p, d, q))
-results = model.fit()
+# Find the best p, d, and q values using auto_arima
+model = auto_arima(time_series, seasonal=False, stepwise=True, trace=True)
+best_p, best_d, best_q = model.order
+
+# Fit the ARIMA model with the best parameters
+best_model = ARIMA(time_series, order=(best_p, best_d, best_q))
+results = best_model.fit()
 print(results.summary())
 
 # Make predictions
